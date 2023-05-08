@@ -1,35 +1,6 @@
-//  Node Code
-
-// const http = require("http");
-
-// const server = http.createServer((req, res) => {
-//   console.log("Request is Coming ..... !");
-//   console.log(req.method, req.url);
-
-//   if (req.method === "POST") {
-//     let body = "";
-//     req.on("end", () => {
-//         const userName = body.split('=')[1]
-//       res.end( `the request is ${userName}`);
-//     });
-
-//     req.on('data', (chunk)=>{
-//         body += chunk;
-//     })
-//   } else {
-//     res.setHeader('Content-Type' , 'text/html')
-//     res.end(
-//       '<form method="POST"><input type="text" name="username" /><button>Send</button></form>'
-//     );
-//   }
-// });
-
-// server.listen(4000);
-
-// Express Code
-
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 
 const placesRoutes = require("./routes/places-routes");
 const usersRoutes = require("./routes/users-routes");
@@ -56,4 +27,12 @@ app.use((error, req, res, next) => {
       .json({ message: error.message || "An Unknown error occured" });
   }
 });
-app.listen(5000);
+
+mongoose
+  .connect("mongodb+srv://AbdulWahab:ABDULWAHAB123@sociopediadb.ex2unl7.mongodb.net/places?retryWrites=true&w=majority")
+  .then(() => {
+    app.listen(5000);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
