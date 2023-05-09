@@ -1,5 +1,7 @@
 const HttpError = require("../models/http-error");
 const validator = require("validator");
+const mongoose = require("mongoose");
+const Place = require("../models/Place");
 
 let DUMMY_PLACES = [
   {
@@ -54,18 +56,39 @@ const getPlacesByUserId = (req, res, next) => {
   res.json({ places });
 };
 
-const createPlace = (req, res, next) => {
+const createPlace = async (req, res, next) => {
   const { title, description, coordinates, address, creator } = req.body;
   if (!validator.isEmpty(title)) {
     if (validator.isLength(description, { min: 5 })) {
+      // const createdPlace = new Place({
+      //   title,
+      //   description,
+      //   address,
+      //   location: coordinates,
+      //   image:
+      //     "https://thumbs.dreamstime.com/b/roadway-to-random-place-interesting-explore-164151133.jpg",
+      //   creator,
+      // });
       const createdPlace = {
         title,
         description,
-        location: coordinates,
         address,
+        location: coordinates,
+        image:
+          "https://thumbs.dreamstime.com/b/roadway-to-random-place-interesting-explore-164151133.jpg",
         creator,
       };
+
+      // Push Places in DUMMY array
       DUMMY_PLACES.push(createdPlace);
+
+      // Save Places to Mongodb
+      // try {
+      //   await createdPlace.save();
+      // } catch (err) {
+      //   const error = new HttpError("Cannot Create Place.", 500);
+      //   next(error);
+      // }
       res.status(201).json({ place: createPlace });
       console.log("Dummy Places: ", DUMMY_PLACES);
     } else {

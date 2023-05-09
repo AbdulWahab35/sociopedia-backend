@@ -28,11 +28,13 @@ app.use((error, req, res, next) => {
   }
 });
 
-mongoose
-  .connect("mongodb+srv://AbdulWahab:ABDULWAHAB123@sociopediadb.ex2unl7.mongodb.net/places?retryWrites=true&w=majority")
-  .then(() => {
-    app.listen(5000);
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+// mongoose
+//   .connect("mongodb+srv://AbdulWahab:ABDULWAHAB123@sociopediadb.ex2unl7.mongodb.net/?retryWrites=true&w=majority")
+//   .then(() => {
+//     app.listen(5000);
+//   })
+//   .catch((error) => {
+//     console.log(error);
+//   });
+
+app.listen(5000);
