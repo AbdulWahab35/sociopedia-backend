@@ -28,13 +28,14 @@ app.use((error, req, res, next) => {
   }
 });
 
-// mongoose
-//   .connect("mongodb+srv://AbdulWahab:ABDULWAHAB123@sociopediadb.ex2unl7.mongodb.net/?retryWrites=true&w=majority")
-//   .then(() => {
-//     app.listen(5000);
-//   })
-//   .catch((error) => {
-//     console.log(error);
-//   });
+mongoose
+  .connect("mongodb://localhost:27017")
+  .then(() => {
+    app.listen(5000);
+    console.log("mongodb connected.");
+  })
+  .catch((error) => {
+    console.log("Database not connected.", error);
+  });
 
-app.listen(5000);
+// app.listen(5000);
