@@ -1,7 +1,16 @@
 const HttpError = require("../models/http-error");
 const validator = require("validator");
-const mongoose = require("mongoose");
 const Place = require("../models/Place");
+// const Account = require('../models/Place')
+
+
+// const createAccount = async (req, res)=>{
+//   console.log(req.body)
+//   const {createAccount, amount} = req.body;
+//   const account = new Account({createAccount, amount})
+//   await account.save();
+//   res.json('Account created');
+// }
 
 let DUMMY_PLACES = [
   {
@@ -60,16 +69,7 @@ const createPlace = async (req, res, next) => {
   const { title, description, coordinates, address, creator } = req.body;
   if (!validator.isEmpty(title)) {
     if (validator.isLength(description, { min: 5 })) {
-      // const createdPlace = new Place({
-      //   title,
-      //   description,
-      //   address,
-      //   location: coordinates,
-      //   image:
-      //     "https://thumbs.dreamstime.com/b/roadway-to-random-place-interesting-explore-164151133.jpg",
-      //   creator,
-      // });
-      const createdPlace = {
+      const createdPlace = new Place({
         title,
         description,
         address,
@@ -77,20 +77,17 @@ const createPlace = async (req, res, next) => {
         image:
           "https://thumbs.dreamstime.com/b/roadway-to-random-place-interesting-explore-164151133.jpg",
         creator,
-      };
-
-      // Push Places in DUMMY array
-      DUMMY_PLACES.push(createdPlace);
+      });
 
       // Save Places to Mongodb
-      // try {
-      //   await createdPlace.save();
-      // } catch (err) {
-      //   const error = new HttpError("Cannot Create Place.", 500);
-      //   next(error);
-      // }
+      try {
+        await createdPlace.save();
+      } catch (err) {
+        const error = new HttpError("Cannot Create Place.", 500);
+        next(error);
+      }
       res.status(201).json({ place: createPlace });
-      console.log("Dummy Places: ", DUMMY_PLACES);
+      // console.log("Dummy Places: ", DUMMY_PLACES);
     } else {
       res.json({
         description: "Description is invalid",
@@ -124,3 +121,4 @@ exports.getPlacesByUserId = getPlacesByUserId;
 exports.createPlace = createPlace;
 exports.updatePlace = updatePlace;
 exports.deletePlace = deletePlace;
+// exports.createAccount = createAccount;

@@ -12,6 +12,7 @@ app.use(bodyParser.json());
 
 app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);
+// app.use("/api", require("./routes/places-routes"));
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find.", 404);
@@ -28,8 +29,17 @@ app.use((error, req, res, next) => {
   }
 });
 
+//======================= Database ==========================
+
+const mongoURI =
+  "mongodb+srv://AbdulWahab:VtjCDxQ5pLDod4Xy@sociopediadb.ex2unl7.mongodb.net/bank-DB?retryWrites=true&w=majority";
+
+// mongoose.connect(mongoURI).then(() => console.log("Hurrah! Connected with DB"));
+
+// app.listen(3001, () => console.log("Server started successfully"));
+
 mongoose
-  .connect("mongodb://localhost:27017")
+  .connect(mongoURI)
   .then(() => {
     app.listen(5000);
     console.log("mongodb connected.");

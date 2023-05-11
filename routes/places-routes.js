@@ -10,10 +10,16 @@ router.get("/:pid", PlacesControllers.getPalceById);
 router.get("/user/:uid", PlacesControllers.getPlacesByUserId);
 
 router.post(
-  "/post",
+  "/",
 //   [check("title").not().isEmpty()],
   PlacesControllers.createPlace
 );
+
+// router.post(
+//   "/",
+ //   [check("title").not().isEmpty()],
+//   PlacesControllers.createAccount
+// );
 
 router.patch("/:pid", PlacesControllers.updatePlace);
 
