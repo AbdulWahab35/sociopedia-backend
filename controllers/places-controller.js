@@ -3,7 +3,6 @@ const validator = require("validator");
 const Place = require("../models/Place");
 // const Account = require('../models/Place')
 
-
 // const createAccount = async (req, res)=>{
 //   console.log(req.body)
 //   const {createAccount, amount} = req.body;
@@ -45,28 +44,46 @@ let DUMMY_PLACES = [
   },
 ];
 
-const getPalceById = (req, res, next) => {
+// getting place by placeId from the DB
+const getPalceById = async (req, res, next) => {
   const placeId = req.params.pid;
-  const place = DUMMY_PLACES.find((place) => place.id === placeId);
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (err) {
+    const error = new HttpError("Something went wrong.", 500);
+    return next(error);
+  }
   if (!place) {
     throw new HttpError("Could not find the place by this id.", 404);
   }
-  res.json({ place });
+  res.json({ place: place.toObject({ getter: true }) });
 };
 
+// getting place by userId from the DB
 const getPlacesByUserId = (req, res, next) => {
   const userId = req.params.uid;
-  const places = DUMMY_PLACES.find((place) => place.creator === userId);
+  let places;
+  try {
+    places = Place.find({ creator: userId });
+  } catch (error) {
+    error = new HttpError("Something went wrong.", 500);
+    next(error);
+  }
   if (!places) {
     return next(
       new HttpError("Could not find the place by this user id.", 404)
     );
   }
-  res.json({ places });
+  res.json({
+    places: places.map((place) => place.toObject({ getters: true })),
+  });
 };
 
+// creating place in the DB
 const createPlace = async (req, res, next) => {
   const { title, description, coordinates, address, creator } = req.body;
+  console.log("data", req.body);
   if (!validator.isEmpty(title)) {
     if (validator.isLength(description, { min: 5 })) {
       const createdPlace = new Place({
@@ -87,7 +104,6 @@ const createPlace = async (req, res, next) => {
         next(error);
       }
       res.status(201).json({ place: createPlace });
-      // console.log("Dummy Places: ", DUMMY_PLACES);
     } else {
       res.json({
         description: "Description is invalid",
