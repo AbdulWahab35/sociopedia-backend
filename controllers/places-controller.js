@@ -154,7 +154,7 @@ const deletePlace = async (req, res, next) => {
       "Something went wrong. Could not delete tha place.",
       500
     );
-    next(error);
+    return next(error);
   }
   try {
     await place.remove();
@@ -163,8 +163,9 @@ const deletePlace = async (req, res, next) => {
       "Something went wrong. Could not delete tha place.",
       500
     );
-    next(error);
+    return next(error);
   }
+  console.log("Deleted Place: ", place);
   res.status(200).json({ message: "Place Deleted." });
 };
 
@@ -173,4 +174,3 @@ exports.getPlacesByUserId = getPlacesByUserId;
 exports.createPlace = createPlace;
 exports.updatePlace = updatePlace;
 exports.deletePlace = deletePlace;
-// exports.createAccount = createAccount;
