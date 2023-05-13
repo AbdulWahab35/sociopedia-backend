@@ -61,11 +61,11 @@ const getPalceById = async (req, res, next) => {
 };
 
 // getting place by userId from the DB
-const getPlacesByUserId = (req, res, next) => {
+const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
   let places;
   try {
-    places = Place.find({ creator: userId });
+    places = await Place.find({ creator: userId });
   } catch (error) {
     error = new HttpError("Something went wrong.", 500);
     next(error);
@@ -114,21 +114,57 @@ const createPlace = async (req, res, next) => {
   }
 };
 
-const updatePlace = (req, res, next) => {
+// Update Place in DB
+const updatePlace = async (req, res, next) => {
   const { title, description } = req.body;
   const placeId = req.params.pid;
-  const updatedPlace = {
-    ...DUMMY_PLACES.find((place) => place.id === placeId),
-  };
-  const placeIndex = DUMMY_PLACES.findIndex((place) => place.id === placeId);
-  (updatedPlace.title = title), (updatedPlace.description = description);
-  DUMMY_PLACES[placeIndex] = updatedPlace;
-  res.status(200).json({ place: updatedPlace });
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong. Could not update the place",
+      500
+    );
+    next(error);
+  }
+  (place.title = title), (place.description = description);
+
+  try {
+    place = await place.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong. Could not update the place",
+      500
+    );
+    next(error);
+  }
+
+  res.status(200).json({ place: place.toObject({ getters: true }) });
 };
 
-const deletePlace = (req, res, next) => {
+// Deleting place from the DB
+const deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
-  DUMMY_PLACES = DUMMY_PLACES.filter((place) => place.id !== placeId);
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong. Could not delete tha place.",
+      500
+    );
+    next(error);
+  }
+  try {
+    await place.remove();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong. Could not delete tha place.",
+      500
+    );
+    next(error);
+  }
   res.status(200).json({ message: "Place Deleted." });
 };
 
