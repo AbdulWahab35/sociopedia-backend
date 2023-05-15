@@ -146,27 +146,16 @@ const updatePlace = async (req, res, next) => {
 // Deleting place from the DB
 const deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
-  let place;
+  // let place;
   try {
-    place = await Place.findById(placeId);
+    (await Place.findByIdAndRemove({ _id: placeId }))
+      ? res.status(200).json({ message: "Place Deleted." })
+      : res.status(200).json({ message: "Place does not exist." });
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong. Could not delete tha place.",
-      500
-    );
+    const error = new HttpError("Something went wrong.", 500);
     return next(error);
   }
-  try {
-    await place.remove();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong. Could not delete tha place.",
-      500
-    );
-    return next(error);
-  }
-  console.log("Deleted Place: ", place);
-  res.status(200).json({ message: "Place Deleted." });
+  // console.log("Deleted Place: ", place);
 };
 
 exports.getPalceById = getPalceById;
