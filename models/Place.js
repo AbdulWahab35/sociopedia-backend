@@ -14,10 +14,3 @@ const placeSchema = new Schema({
 });
 
 module.exports = mongoose.model("Place", placeSchema);
-
-// const placeSchema = new Schema({
-// accountNumber:{ type: String},
-//  amount:{ type: Number}
-// });
-
-// module.exports = mongoose.model("Account", placeSchema);
