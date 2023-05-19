@@ -1,5 +1,6 @@
 const HttpError = require("../models/http-error");
 const uuid = require("uuid");
+const User = require("../models/user");
 
 const DUMMY_USERS = [
   {
@@ -18,32 +19,57 @@ const getUser = (req, res, next) => {
   res.json({ users: DUMMY_USERS });
 };
 
-const createUser = (req, res, next) => {
-  const { name, email, password } = req.body;
+const signup = async (req, res, next) => {
+  const { name, email, password, places } = req.body;
 
-  const hasUser = DUMMY_USERS.find(user => user.email === email);
-  if(hasUser){
-    throw new HttpError("User Already Exsists.", 422)
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError("Signing up failed. Sign up later", 500);
+    return next(error);
   }
-  const createdUser = {
+  if (existingUser) {
+    const error = new HttpError("User exist already.", 422);
+    return next(error);
+  }
+  const createdUser = new User({
     name,
     email,
+    image:
+      "https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dXNlcnxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80",
     password,
-  };
-  DUMMY_USERS.push(createdUser);
+    places,
+  });
+  try {
+    await createdUser.save();
+  } catch (err) {
+    const error = new HttpError("Signing up failed. Try again later", 500);
+    next(error);
+  }
   res.status(201).json({ user: createdUser });
   console.log("DUMMY_USERS: ", DUMMY_USERS);
 };
 
-const login = (req, res, next) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
-  const indentifiedUser = DUMMY_USERS.find((user) => user.email === email);
-  if (!indentifiedUser || indentifiedUser.password !== password) {
-    throw new HttpError("Could not indentify user. Credentials are wrong", 401);
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError("Logged in failed.");
+    return next(error);
+  }
+  if (!existingUser || existingUser.password !== password) {
+    const error = new HttpError(
+      "Invalid email or password. Could not logged in.",
+      401
+    );
+    return next(error);
   }
   res.json({ message: "Logged in. Thankyou" });
 };
 
 exports.getUser = getUser;
-exports.createUser = createUser;
+exports.signup = signup;
 exports.login = login;
