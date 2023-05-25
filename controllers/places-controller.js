@@ -1,15 +1,7 @@
 const HttpError = require("../models/http-error");
 const validator = require("validator");
-const Place = require("../models/Place");
-// const Account = require('../models/Place')
-
-// const createAccount = async (req, res)=>{
-//   console.log(req.body)
-//   const {createAccount, amount} = req.body;
-//   const account = new Account({createAccount, amount})
-//   await account.save();
-//   res.json('Account created');
-// }
+const Place = require("../models/place");
+const User = require("../models/user");
 
 let DUMMY_PLACES = [
   {
@@ -95,10 +87,28 @@ const createPlace = async (req, res, next) => {
           "https://thumbs.dreamstime.com/b/roadway-to-random-place-interesting-explore-164151133.jpg",
         creator,
       });
+      let user;
+      try {
+        user = await User.findById(creator);
+      } catch (err) {
+        const error = new HttpError("Creating place failed. try again", 500);
+        return next(error);
+      }
+
+      if (!user) {
+        const error = new HttpError("Could not find the user", 404);
+        return next(error);
+      }
+      console.log(user);
 
       // Save Places to Mongodb
       try {
-        await createdPlace.save();
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        await createdPlace.save({ session: session });
+        user.places.push(createdPlace);
+        await user.save({ session: session });
+        await session.commitTransaction();
       } catch (err) {
         const error = new HttpError("Cannot Create Place.", 500);
         next(error);
