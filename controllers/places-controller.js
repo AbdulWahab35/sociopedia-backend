@@ -187,7 +187,7 @@ const deletePlace = async (req, res, next) => {
       "Something went wrong. could not delete the place.",
       500
     );
-    return next(error); 
+    return next(error);
   }
   // console.log("Deleted Place: ", place);
 };
