@@ -159,13 +159,12 @@ const deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
   let place;
   try {
-    place = (await Place.findByIdAndRemove({ _id: placeId }).populate(
-      "creator"
-    ))
+    place = (await Place.findByIdAndRemove(placeId).populate("creator"))
       ? res.status(200).json({ message: "Place Deleted." })
       : res.status(200).json({ message: "Place does not exist." });
   } catch (err) {
     const error = new HttpError("Something went wrong.", 500);
+    console.log("Place", place);
     return next(error);
   }
 
@@ -177,9 +176,8 @@ const deletePlace = async (req, res, next) => {
   try {
     const session = await mongoose.startSession();
     session.startTransaction();
-    await place.remove({ session: session });
-    console.log(".....", place.creator);
-    place.creator.places.pull(place);
+    await place.findByIdAndRemove({ session: session });
+    place.creator.places.filter(place);
     await place.creator.save({ session: session });
     await session.commitTransaction();
   } catch (err) {
